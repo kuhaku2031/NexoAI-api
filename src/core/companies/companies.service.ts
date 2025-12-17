@@ -1,10 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { IdGenerator } from 'src/common/utils/id-generator.util';
+import { Injectable } from '@nestjs/common';
 import { Company } from './entities/company.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateAuthDto } from '../auth/dto/create-auth.dto';
-import { format } from 'path';
 import { Formatdate } from 'src/common/utils/date.util';
 
 @Injectable()
@@ -14,9 +12,11 @@ export class CompaniesService {
     private readonly companyRepository: Repository<Company>,
   ) {}
 
-  async create(createAuthDto: CreateAuthDto, companyID: string): Promise<Company> {
+  async create(
+    createAuthDto: CreateAuthDto,
+    companyID: string,
+  ): Promise<Company> {
     try {
-
       // Create a new company entity
       const newCompany = this.companyRepository.create({
         company_id: companyID,

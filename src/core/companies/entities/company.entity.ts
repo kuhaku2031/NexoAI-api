@@ -1,5 +1,7 @@
+import { PointSale } from 'src/bussines/pos/point-sale/entities/point-sale.entity';
+import { WorkSession } from 'src/bussines/work-sessions/entities/work-session.entity';
 import { Users } from 'src/core/users/entities/user.entity';
-import { Column, Entity, OneToMany, PrimaryColumn, Unique } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Company {
@@ -34,5 +36,11 @@ export class Company {
   updated_at: string;
 
   @OneToMany(() => Users, (users) => users.company)
-  users: Users[];
+  users: Users;
+
+  @OneToMany(() => PointSale, (pointSale) => pointSale.company)
+  point_sales: PointSale;
+
+  @OneToMany(() => WorkSession, (workSession) => workSession.company)
+  work_sessions: WorkSession;
 }

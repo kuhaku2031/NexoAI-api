@@ -47,6 +47,7 @@ export class AuthService {
       );
 
       const ownerUser = this.usersService.create({
+        user_id: IdGenerator.generateUserId(createAuthDto.owner_name),
         company_id: company_id,
         email: createAuthDto.email,
         password: hasedPassword,
@@ -133,7 +134,7 @@ export class AuthService {
     try {
       const payload = await this.JwtService.verifyAsync(refreshToken, {
         secret: jwtConstants.refreshToken.secret,
-      })
+      });
 
       const user = await this.usersService.findOneByEmail(payload.email);
 
@@ -144,25 +145,27 @@ export class AuthService {
       const isRefreshTokenValid = await new HashUtil().compare(
         refreshToken,
         user.refresh_token,
-      )
+      );
 
       if (!isRefreshTokenValid) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
-      const newAccessToken = await this.JwtService.signAsync({
-        company_id: user.company_id,
-        email: user.email,
-        role: user.role,
-      }, {
-        secret: jwtConstants.accessToken.secret,
-        expiresIn: jwtConstants.accessToken.signOptions,
-      });
+      const newAccessToken = await this.JwtService.signAsync(
+        {
+          company_id: user.company_id,
+          email: user.email,
+          role: user.role,
+        },
+        {
+          secret: jwtConstants.accessToken.secret,
+          expiresIn: jwtConstants.accessToken.signOptions,
+        },
+      );
 
       return {
         access_token: newAccessToken,
-      }
-
+      };
     } catch (error) {
       console.log(error);
       throw new UnauthorizedException('Invalid refresh token');

@@ -1,5 +1,13 @@
 import { Sale } from 'src/bussines/sale/sales/entities/sale.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { WorkSession } from 'src/bussines/work-sessions/entities/work-session.entity';
+import { Company } from 'src/core/companies/entities/company.entity';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class PointSale {
@@ -14,4 +22,10 @@ export class PointSale {
 
   @OneToMany(() => Sale, (sale) => sale.point_sale)
   sales: Sale[];
+
+  @ManyToOne(() => Company, (company) => company.point_sales)
+  company: Company;
+
+  // @OneToMany(() => WorkSession, (workSession) => workSession.point_sale)
+  // work_sessions: WorkSession;
 }

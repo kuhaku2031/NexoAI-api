@@ -24,28 +24,26 @@ import { Subscription } from './core/billing/suscription/entities/suscription.en
 import { SubscriptionPlan } from './core/billing/suscription-plans/entities/suscription-plan.entity';
 import { SubscriptionUsage } from './core/billing/suscription-usage/entities/suscription-usage.entity';
 import { ConfigModule } from '@nestjs/config';
-
-
+import { WorkSession } from './bussines/work-sessions/entities/work-session.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
-  TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any || 'postgres',
+    TypeOrmModule.forRoot({
+      type: (process.env.DB_TYPE as any) || 'postgres',
       host: process.env.DB_HOST,
       port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-      username: process.env.DB_USERNAME ,
+      username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       entities: [
-
-        // BUSINESs
+        // BUSSINES
         // {inventory}
         Category,
         Product,
-        
+
         // {payment}
         Payment,
         PaymentsDetail,
@@ -58,7 +56,10 @@ import { ConfigModule } from '@nestjs/config';
         Sale,
         SalesDetail,
 
-        // CORE 
+        // {work-sessions}
+        WorkSession,
+
+        // CORE
         // {billing}
         Subscription,
         SubscriptionPlan,
@@ -68,7 +69,7 @@ import { ConfigModule } from '@nestjs/config';
         Company,
 
         // {users}
-        Users
+        Users,
       ],
       autoLoadEntities: true,
       synchronize: true,
@@ -81,8 +82,7 @@ import { ConfigModule } from '@nestjs/config';
     BussinesModule,
     CommonModule,
     CoreModule,
-    BillingModule
-
+    BillingModule,
   ],
   controllers: [],
   providers: [],

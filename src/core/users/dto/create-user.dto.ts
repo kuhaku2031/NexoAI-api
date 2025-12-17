@@ -13,6 +13,12 @@ export class CreateUserDto {
   @MinLength(3)
   @MaxLength(150)
   @IsNotEmpty()
+  user_id: string;
+
+  @IsString()
+  @MinLength(3)
+  @MaxLength(150)
+  @IsNotEmpty()
   company_id: string;
 
   @IsString()
@@ -33,7 +39,7 @@ export class CreateUserDto {
   @IsNotEmpty()
   first_name: string;
 
-  @IsString()  
+  @IsString()
   @MinLength(3)
   @MaxLength(150)
   @IsNotEmpty()

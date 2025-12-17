@@ -1,16 +1,14 @@
+import { WorkSession } from 'src/bussines/work-sessions/entities/work-session.entity';
 import { UserRole } from 'src/common/enum/role.enum';
 import { Company } from 'src/core/companies/entities/company.entity';
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 
 @Entity()
 export class Users {
   @PrimaryColumn()
+  user_id: string;
+
+  @Column()
   company_id: string;
 
   @Column({ unique: true })
@@ -47,19 +45,8 @@ export class Users {
   refresh_token_expires: Date;
 
   @ManyToOne(() => Company, (company) => company.users)
-  @JoinColumn({ name: 'company_id' })
   company: Company;
 
-  // // Relaciones
-  // //   @ManyToMany(() => PointSale, pointSale => pointSale.employees)
-  // @Column()
-  // pointSales: 'PointSale[]';
-
-  // //   @OneToMany(() => WorkSession, workSession => workSession.user)
-  // @Column()
-  // workSessions: 'WorkSession[]';
-
-  // //   @OneToMany(() => Sale, sale => sale.createdBy)
-  // @Column()
-  // sales: 'Sale[]';
+  @OneToMany(() => WorkSession, (workSession) => workSession.user)
+  work_sessions: WorkSession;
 }
