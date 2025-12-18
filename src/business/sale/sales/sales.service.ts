@@ -76,8 +76,6 @@ export class SalesService {
           );
           if (!saleConfirmExisting) {
             throw new Error('Sale not found');
-          } else {
-            console.log(sale.sale_id);
           }
 
           // Crear el pago
@@ -88,11 +86,6 @@ export class SalesService {
             paymentDetail: paymentData.paymentDetail,
           });
           await transactionalEntityManager.save(payment);
-
-          if (saleConfirmExisting) {
-            console.log(payment);
-            console.log(payment.payment_id);
-          }
 
           const paymentDetailsDtos = payment.paymentDetail.map(
             (paymentDetail) => ({
@@ -149,8 +142,6 @@ export class SalesService {
 
       if (!saleDetail) {
         throw new Error(`Sale with id ${sale_id} not found`);
-      } else {
-        console.log(sale_id);
       }
 
       await this.salesDetailsService.removeSaleDetail(saleDetail);

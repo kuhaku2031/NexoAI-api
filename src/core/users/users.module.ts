@@ -12,8 +12,8 @@ import { jwtConstants } from 'src/config/jwt.config';
     TypeOrmModule.forFeature([Users]),
     JwtModule.register({
       secret: jwtConstants.accessToken.secret,
-      signOptions:{ expiresIn: jwtConstants.accessToken.signOptions },
-    }), 
+      signOptions: { expiresIn: jwtConstants.accessToken.signOptions },
+    }),
   ],
   exports: [UsersService],
   controllers: [UsersController],
