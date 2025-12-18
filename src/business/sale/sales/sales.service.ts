@@ -20,6 +20,15 @@ export class SalesService {
     private readonly paymentRepository: Repository<Payment>,
     private readonly paymentDetailsService: PaymentsDetailsService,
   ) {}
+
+  async findAll() {
+    return await this.saleRepository.find();
+  }
+
+  async findOne(id: number) {
+    return await this.saleRepository.findOne({ where: { sale_id: id } });
+  }
+
   async createSale(
     createSaleWithPaymentDto: CreateSaleWithPaymentDto,
   ): Promise<any> {
@@ -107,8 +116,21 @@ export class SalesService {
     }
   }
 
-  async findAll() {
-    return await this.saleRepository.find();
+  async update(sale_id: number) {
+    try {
+      const sale = await this.saleRepository.findOne({
+        where: { sale_id },
+      });
+
+      if (!sale) {
+        throw new Error(`Sale with id ${sale_id} not found`);
+      }
+
+      return await this.saleRepository.update(sale_id, sale);
+    } catch (error) {
+      console.error(error);
+      throw new Error('Error updating sale');
+    }
   }
 
   async remove(sale_id: number) {

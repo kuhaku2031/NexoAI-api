@@ -12,8 +12,15 @@ export class PaymentsDetailsService {
   ) {}
   async createPaymentDeatils(
     createPaymentsDetailDto: CreatePaymentsDetailDto[],
-    transactionalEntityManager: EntityManager,
+    transactionalEntityManager?: EntityManager,
   ) {
+    if (!transactionalEntityManager) {
+      const paymentDetails = this.paymentDetailRepository.create(
+        createPaymentsDetailDto,
+      );
+      return await this.paymentDetailRepository.save(paymentDetails);
+    }
+
     const paymentDetails = createPaymentsDetailDto.map((dto) =>
       this.paymentDetailRepository.create(dto),
     );

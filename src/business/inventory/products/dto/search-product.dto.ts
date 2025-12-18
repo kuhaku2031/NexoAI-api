@@ -4,5 +4,5 @@ export class SearchProductDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
-  searchTerm: string;
+  search_term: string;
 }

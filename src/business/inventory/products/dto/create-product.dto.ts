@@ -1,6 +1,5 @@
 import { Type } from 'class-transformer';
 import {
-  IsInt,
   IsNotEmpty,
   IsNumber,
   IsString,
@@ -41,7 +40,7 @@ export class CreateProductDto {
   @MinLength(2)
   category: string;
 
-  @IsInt()
+  @IsNumber()
   @IsNotEmpty()
   @Min(1)
   stock: number;

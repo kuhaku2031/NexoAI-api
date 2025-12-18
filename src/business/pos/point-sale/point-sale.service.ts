@@ -7,19 +7,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PointSaleService {
-
   constructor(
     @InjectRepository(PointSale)
     private readonly pointSaleRepository: Repository<PointSale>,
   ) {}
-  
+
   async create(createPointSaleDto: CreatePointSaleDto) {
     const point = this.pointSaleRepository.create(createPointSaleDto);
     return await this.pointSaleRepository.save(point);
   }
 
   findAll() {
-    return `This action returns all pointSale`;
+    return this.pointSaleRepository.find();
   }
 
   async findOnePointSale(name: string) {
@@ -27,10 +26,10 @@ export class PointSaleService {
   }
 
   update(id: number, updatePointSaleDto: UpdatePointSaleDto) {
-    return `This action updates a #${id} pointSale`;
+    return this.pointSaleRepository.update(id, updatePointSaleDto);
   }
 
   remove(id: number) {
-    return `This action removes a #${id} pointSale`;
+    return this.pointSaleRepository.delete(id);
   }
 }

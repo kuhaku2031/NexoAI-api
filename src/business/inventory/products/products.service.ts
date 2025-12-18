@@ -3,13 +3,13 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Like, Repository } from 'typeorm';
-import { Category } from 'src/business/inventory/categories/entities/category.entity';
+import { Category } from '../categories/entities/category.entity';
 
 @Injectable()
 export class ProductsService {
@@ -22,28 +22,30 @@ export class ProductsService {
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    const category = await this.categoryRepository.findOneBy({
-      category_name: createProductDto.category,
-    });
-
-    if (!category) {
-      throw new Error(`Category ${createProductDto.category} not found`);
-    }
-
-    const newProduct = this.productRepository.create({
-      ...createProductDto,
-      category,
-    });
-
     try {
+      const category = await this.categoryRepository.findOne({
+        where: { category_name: createProductDto.category },
+      });
+
+      if (!category) {
+        throw new NotFoundException(
+          `Category ${createProductDto.category} not found`,
+        );
+      }
+
+      const newProduct = this.productRepository.create({
+        ...createProductDto,
+        category: category, // 👈 Pasa la entidad completa
+      });
+
       return await this.productRepository.save(newProduct);
     } catch (error) {
-      if (error.message.includes('Product with code')) {
+      if (error.code === '23505') {
+        // Código de PostgreSQL para unique violation
         throw new ConflictException(
           'El código del producto ya existe. Por favor, elige un código diferente.',
         );
       }
-      // Manejar otros errores
       throw new InternalServerErrorException(
         'Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde.',
       );
@@ -54,20 +56,25 @@ export class ProductsService {
     return this.productRepository.find();
   }
 
-  async searchProduct(SearchProductDto: SearchProductDto): Promise<Product[]> {
-    const { searchTerm } = SearchProductDto;
+  async searchProduct(SearchProductDto: SearchProductDto) {
+    const { search_term } = SearchProductDto;
 
     const products = await this.productRepository.find({
-      where: [{ name: Like(`%${searchTerm}%`) }],
+      where: [{ name: Like(`%${search_term}%`) }],
     });
 
     return products;
   }
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+
+  async findOne(id: number): Promise<Product> {
+    return await this.productRepository.findOne({ where: { id } });
   }
 
+  // update(id: number, updateProductDto: UpdateProductDto) {
+  //   return this.productRepository.update(id, updateProductDto);
+  // }
+
   remove(id: number) {
-    return `This action removes a #${id} product`;
+    return this.productRepository.delete(id);
   }
 }

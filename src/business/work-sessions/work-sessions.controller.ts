@@ -17,7 +17,7 @@ import { CheckOutDto } from './dto/check-out.dto';
 export class WorkSessionsController {
   constructor(private readonly workSessionsService: WorkSessionsService) {}
 
-  @Post('crear')
+  @Post()
   create(@Body() createWorkSessionDto: CreateWorkSessionDto) {
     return this.workSessionsService.create(createWorkSessionDto);
   }

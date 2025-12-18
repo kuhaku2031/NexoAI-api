@@ -17,7 +17,7 @@ export class CategoriesService {
   }
 
   async findAll() {
-    return "This action returns all categories";
+    return await this.categoriesRepository.find();
   }
 
   async findByName(category_name: string): Promise<Category> {

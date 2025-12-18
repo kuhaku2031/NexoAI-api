@@ -10,4 +10,8 @@ export class CreatePointSaleDto {
   @IsNotEmpty()
   @MinLength(5)
   address: string;
+
+  @IsString()
+  @IsNotEmpty()
+  company_id: string;
 }

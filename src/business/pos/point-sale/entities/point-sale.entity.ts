@@ -1,9 +1,9 @@
 import { Sale } from 'src/business/sale/sales/entities/sale.entity';
-import { WorkSession } from 'src/business/work-sessions/entities/work-session.entity';
 import { Company } from 'src/core/companies/entities/company.entity';
 import {
   Column,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -21,9 +21,10 @@ export class PointSale {
   address: string;
 
   @OneToMany(() => Sale, (sale) => sale.point_sale)
-  sales: Sale[];
+  sales: Sale;
 
   @ManyToOne(() => Company, (company) => company.point_sales)
+  @JoinColumn({ name: 'company_id' })
   company: Company;
 
   // @OneToMany(() => WorkSession, (workSession) => workSession.point_sale)

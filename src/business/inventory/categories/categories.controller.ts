@@ -15,9 +15,9 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post()
-  create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoriesService.create(createCategoryDto);
+  @Get(':category_name')
+  findOne(@Param('category_name') category_name: string) {
+    return this.categoriesService.findByName(category_name);
   }
 
   @Get()
@@ -25,9 +25,9 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
-  @Get(':category_name')
-  findOne(@Param('category_name') category_name: string) {
-    return this.categoriesService.findByName(category_name);
+  @Post()
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
   }
 
   @Patch(':category_name')

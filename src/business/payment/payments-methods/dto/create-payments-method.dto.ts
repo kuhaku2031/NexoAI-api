@@ -4,5 +4,5 @@ export class CreatePaymentsMethodDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(2)
-  payment_method: string;
+  method_name: string;
 }
