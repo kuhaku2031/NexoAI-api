@@ -12,6 +12,7 @@ import { Repository } from 'typeorm';
 import { Formatdate } from 'src/common/utils/date.util';
 import { Users } from 'src/core/users/entities/user.entity';
 import { Status } from 'src/common/enum/status.enum';
+import { CheckOutDto } from './dto/check-out.dto';
 
 @Injectable()
 export class WorkSessionsService {
@@ -54,22 +55,53 @@ export class WorkSessionsService {
         { status: Status.FORCE_CLOSED, check_out: Formatdate() },
       );
 
+      // Update user status
+      await this.usersRepository.update(user.user_id, { is_active: true });
+
       // Create new work session
       const workSession = await this.workSessionsRepository.create({
         user: { user_id: checkInDto.user_id },
         company: { company_id: user.company_id },
         check_in: Formatdate(),
+        status: Status.ACTIVE,
         total_time: 0,
       });
-
-      console.log(workSession);
 
       return this.workSessionsRepository.save(workSession);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      console.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async checkOut(checkOutDto: CheckOutDto) {
+    try {
+      // Find user by user_id and retations company
+      const user = await this.usersRepository.findOne({
+        where: { user_id: checkOutDto.user_id },
+        relations: ['company'],
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      // Update user status
+      await this.usersRepository.update(user.user_id, { is_active: false });
+
+      // Update work session
+      await this.workSessionsRepository.update(
+        { user: { user_id: checkOutDto.user_id }, status: Status.ACTIVE },
+        { status: Status.INACTIVE, check_out: Formatdate() },
+      );
+
+      return 'This action checks out a workSession';
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
       throw new InternalServerErrorException(error);
     }
   }
@@ -77,10 +109,6 @@ export class WorkSessionsService {
   async update(id: number, updateWorkSessionDto: UpdateWorkSessionDto) {
     await this.workSessionsRepository.update(id, updateWorkSessionDto);
     return this.workSessionsRepository.findOneBy({ id });
-  }
-
-  async checkOut() {
-    return 'This action checks out a workSession';
   }
 
   remove(id: number) {

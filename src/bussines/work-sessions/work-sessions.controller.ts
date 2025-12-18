@@ -11,6 +11,7 @@ import { WorkSessionsService } from './work-sessions.service';
 import { CreateWorkSessionDto } from './dto/create-work-session.dto';
 import { UpdateWorkSessionDto } from './dto/update-work-session.dto';
 import { CheckInDto } from './dto/check-in.dto';
+import { CheckOutDto } from './dto/check-out.dto';
 
 @Controller('work-sessions')
 export class WorkSessionsController {
@@ -45,8 +46,8 @@ export class WorkSessionsController {
   }
 
   @Post('check-out')
-  checkOut() {
-    return this.workSessionsService.checkOut();
+  checkOut(@Body() checkOutDto: CheckOutDto) {
+    return this.workSessionsService.checkOut(checkOutDto);
   }
 
   @Delete(':id')

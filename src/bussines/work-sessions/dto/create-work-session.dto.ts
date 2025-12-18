@@ -1,10 +1,12 @@
 import {
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsString,
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { Status } from 'src/common/enum/status.enum';
 
 export class CreateWorkSessionDto {
   @IsString()
@@ -29,6 +31,10 @@ export class CreateWorkSessionDto {
   @MinLength(3)
   @MaxLength(150)
   check_out: string;
+
+  @IsEnum(Status)
+  @IsNotEmpty()
+  status: Status;
 
   @IsNumber()
   @IsNotEmpty()

@@ -15,17 +15,13 @@ export class WorkSession {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Company, (company) => company.work_sessions)
-  @JoinColumn({ name: 'company_id' })
-  company: Company;
-
-  // @ManyToOne(() => PointSale, (pointSale) => pointSale.work_sessions)
-  // @JoinColumn({ name: 'point_sale_id' })
-  // point_sale: PointSale;
-
   @ManyToOne(() => Users, (users) => users.work_sessions)
   @JoinColumn({ name: 'user_id' })
   user: Users;
+
+  @ManyToOne(() => Company, (company) => company.work_sessions)
+  @JoinColumn({ name: 'company_id' })
+  company: Company;
 
   @Column()
   check_in: string;
