@@ -1,5 +1,5 @@
-import { PointSale } from 'src/bussines/pos/point-sale/entities/point-sale.entity';
-import { WorkSession } from 'src/bussines/work-sessions/entities/work-session.entity';
+import { PointSale } from 'src/business/pos/point-sale/entities/point-sale.entity';
+import { WorkSession } from 'src/business/work-sessions/entities/work-session.entity';
 import { Users } from 'src/core/users/entities/user.entity';
 import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Import all modules here
-import { BussinesModule } from './bussines/bussines.module';
+import { BussinesModule } from './business/bussines.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AiModule } from './ai/ai.module';
 import { BillingModule } from './core/billing/billing.module';
@@ -10,21 +10,21 @@ import { CommonModule } from './common/common.module';
 import { CoreModule } from './core/core.module';
 
 //  Import all entities here
-import { Category } from './bussines/inventory/categories/entities/category.entity';
-import { Product } from './bussines/inventory/products/entities/product.entity';
-import { PointSale } from './bussines/pos/point-sale/entities/point-sale.entity';
-import { Payment } from './bussines/payment/payments/entities/payment.entity';
-import { PaymentsDetail } from './bussines/payment/payments-details/entities/payments-detail.entity';
-import { PaymentsMethod } from './bussines/payment/payments-methods/entities/payments-method.entity';
-import { Sale } from './bussines/sale/sales/entities/sale.entity';
-import { SalesDetail } from './bussines/sale/sales-details/entities/sales-detail.entity';
+import { Category } from './business/inventory/categories/entities/category.entity';
+import { Product } from './business/inventory/products/entities/product.entity';
+import { PointSale } from './business/pos/point-sale/entities/point-sale.entity';
+import { Payment } from './business/payment/payments/entities/payment.entity';
+import { PaymentsDetail } from './business/payment/payments-details/entities/payments-detail.entity';
+import { PaymentsMethod } from './business/payment/payments-methods/entities/payments-method.entity';
+import { Sale } from './business/sale/sales/entities/sale.entity';
+import { SalesDetail } from './business/sale/sales-details/entities/sales-detail.entity';
 import { Company } from './core/companies/entities/company.entity';
 import { Users } from './core/users/entities/user.entity';
 import { Subscription } from './core/billing/suscription/entities/suscription.entity';
 import { SubscriptionPlan } from './core/billing/suscription-plans/entities/suscription-plan.entity';
 import { SubscriptionUsage } from './core/billing/suscription-usage/entities/suscription-usage.entity';
 import { ConfigModule } from '@nestjs/config';
-import { WorkSession } from './bussines/work-sessions/entities/work-session.entity';
+import { WorkSession } from './business/work-sessions/entities/work-session.entity';
 
 @Module({
   imports: [

@@ -1,4 +1,4 @@
-import { WorkSession } from 'src/bussines/work-sessions/entities/work-session.entity';
+import { WorkSession } from 'src/business/work-sessions/entities/work-session.entity';
 import { UserRole } from 'src/common/enum/role.enum';
 import { Company } from 'src/core/companies/entities/company.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
