@@ -4,7 +4,6 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import { CompaniesService } from '../companies/companies.service';
 import { UsersService } from '../users/users.service';
@@ -69,12 +68,14 @@ export class AuthService {
 
   async login(LoginAuthDto: LoginAuthDto) {
     try {
+      // Find user by email
       const user = await this.usersService.findOneByEmail(LoginAuthDto.email);
 
       if (!user) {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      // Compare password
       const isPasswordValid = await new HashUtil().compare(
         LoginAuthDto.password,
         user.password,
@@ -84,6 +85,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid credentials');
       }
 
+      // Generate payload
       const payload = {
         company_id: user.company_id,
         email: user.email,
@@ -102,11 +104,14 @@ export class AuthService {
         expiresIn: jwtConstants.refreshToken.signOptions,
       });
 
+      // Hash refresh token
       const hasedRefreshToken = await new HashUtil().hashing(refreshToken);
 
+      // Set refresh token expiration
       const refreshExpires = new Date();
-      refreshExpires.setDate(refreshExpires.getDate() + 7); // 7 días
+      refreshExpires.setDate(refreshExpires.getDate() + 7);
 
+      // Update refresh token in database
       await this.usersService.updateRefreshToken(
         user.email,
         hasedRefreshToken,
@@ -170,21 +175,5 @@ export class AuthService {
       console.log(error);
       throw new UnauthorizedException('Invalid refresh token');
     }
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
   }
 }

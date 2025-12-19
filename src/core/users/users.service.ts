@@ -32,18 +32,21 @@ export class UsersService {
     return await this.userRepository.findOne({ where: { email: email } });
   }
 
-  async findAllByEmail(company_id: string) {
+  async findAllByCompany(company_id: string) {
     return await this.userRepository.find({
       where: { company_id: company_id },
     });
   }
 
-  async updateRefreshToken(email: string, refreshToken: string, expiresAt: Date) {
+  async updateRefreshToken(
+    email: string,
+    refreshToken: string,
+    expiresAt: Date,
+  ) {
     await this.userRepository.update(
       { email: email },
       { refresh_token: refreshToken, refresh_token_expires: expiresAt },
     );
-
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

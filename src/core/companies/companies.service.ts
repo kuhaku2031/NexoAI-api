@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Company } from './entities/company.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,10 +12,7 @@ export class CompaniesService {
     private readonly companyRepository: Repository<Company>,
   ) {}
 
-  async create(
-    createAuthDto: CreateAuthDto,
-    companyID: string,
-  ): Promise<Company> {
+  async create(createAuthDto: CreateAuthDto, companyID: string) {
     try {
       // Create a new company entity
       const newCompany = this.companyRepository.create({
@@ -36,8 +33,7 @@ export class CompaniesService {
 
       return newCompany;
     } catch (error) {
-      console.error('Error creating company:', error);
-      throw error;
+      throw new BadRequestException(error.message);
     }
   }
 
