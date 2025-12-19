@@ -1,4 +1,3 @@
-// src/common/utils/id-generator.util.ts
 import { init } from '@paralleldrive/cuid2';
 
 export class IdGenerator {

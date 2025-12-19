@@ -7,10 +7,10 @@ import { ROLES_KEY } from '../decorators/roles.decorator';
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  private roleHierarchy: Record<UserRole, UserRole[]> = {
-    [UserRole.OWNER]: [UserRole.OWNER],
-    [UserRole.MANAGER]: [UserRole.MANAGER, UserRole.OWNER],
-    [UserRole.EMPLOYEE]: [UserRole.EMPLOYEE, UserRole.MANAGER, UserRole.OWNER],
+  private roleHierarchy: Record<UserRole, number> = {
+    [UserRole.OWNER]: 3,
+    [UserRole.MANAGER]: 2,
+    [UserRole.EMPLOYEE]: 1,
   };
 
   canActivate(context: ExecutionContext): boolean {
@@ -24,14 +24,15 @@ export class RolesGuard implements CanActivate {
     }
 
     const { user } = context.switchToHttp().getRequest();
-    const userRolesLevel = this.roleHierarchy[user.role];
+    const userLevel = this.roleHierarchy[user.role];
 
-    if (!userRolesLevel) {
+    if (!userLevel) {
       return false;
     }
 
-    return requiredRoles.some(
-      (role) => userRolesLevel >= this.roleHierarchy[role],
+    const minRequiedRoles = Math.min(
+      ...requiredRoles.map((role) => this.roleHierarchy[role]),
     );
+    return userLevel >= minRequiedRoles;
   }
 }
