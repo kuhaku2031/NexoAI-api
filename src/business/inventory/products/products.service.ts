@@ -10,6 +10,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { Like, Repository } from 'typeorm';
 import { Category } from '../categories/entities/category.entity';
+import { FilterProductDto } from './dto/filter-product.dto';
+import { StatusStock } from 'src/common/enum/product';
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    limit: number;
+    total_pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
+}
 
 @Injectable()
 export class ProductsService {
@@ -52,8 +66,74 @@ export class ProductsService {
     }
   }
 
-  findAll() {
-    return this.productRepository.find();
+  async findAllWithFilters(filterProductDto: FilterProductDto): Promise<PaginatedResponse<Product>> {
+        const { 
+      page = 1,
+      limit = 20,
+      search,
+      categories,
+      min_price,
+      max_price,
+      stock_status,
+      sort_by = 'name',
+      sort_order = 'ASC',
+    } = filterProductDto;
+
+    const queryBuilder = this.productRepository
+    .createQueryBuilder('product')
+    .leftJoinAndSelect('product.category', 'category');
+
+    if (search) {
+      queryBuilder.andWhere(
+        '(product.name ILIKE :search OR product.code::text ILIKE :search)',
+        { search: `%${search}%` },
+      );
+    }
+
+    if (categories && categories.length > 0) {
+      queryBuilder.andWhere('category.category_name IN (:...categories)', {categories})
+  }
+    if (min_price !== undefined) {
+      queryBuilder.andWhere('product.selling_price >= :minPrice', { min_price });
+    }
+
+    if (max_price !== undefined) {
+      queryBuilder.andWhere('product.selling_price <= :maxPrice', { max_price });
+    }
+
+    if (stock_status) {
+      switch (stock_status) {
+        case StatusStock.IN_STOCK:
+          queryBuilder.andWhere('product.stock > 10');
+          break;
+        case StatusStock.LOW_STOCK:
+          queryBuilder.andWhere('product.stock BETWEEN 1 AND 10');
+          break;
+        case StatusStock.OUT_OF_STOCK:
+          queryBuilder.andWhere('product.stock = 0');
+          break;
+      }
+    }
+
+    queryBuilder.orderBy(`product.${sort_by}`, sort_order);
+
+    queryBuilder.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await queryBuilder.getManyAndCount();
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total: total,
+        page: page,
+        limit: limit,
+        total_pages: totalPages,
+        has_next: page < totalPages,
+        has_prev: page > 1,
+      },
+    };
   }
 
   async searchProduct(SearchProductDto: SearchProductDto) {
