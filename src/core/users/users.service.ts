@@ -39,12 +39,11 @@ export class UsersService {
 
   async updateRefreshToken(
     email: string,
-    refreshToken: string,
     expiresAt: string,
   ) {
     await this.userRepository.update(
       { email: email },
-      { refresh_token: refreshToken, refresh_token_expires: expiresAt },
+      { refresh_token_expires: expiresAt },
     );
   }
 

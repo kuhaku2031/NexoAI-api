@@ -1,7 +1,6 @@
-import { IsNotEmpty, IsString, Min } from 'class-validator';
+import { IsNotEmpty, IsString} from 'class-validator';
 export class UpdateAuthDto{
     @IsNotEmpty()
     @IsString()
-    @Min(2)
     refresh_tocken: string
 }

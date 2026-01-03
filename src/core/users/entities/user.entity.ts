@@ -37,10 +37,7 @@ export class Users {
 
   @Column()
   updated_at: string;
-
-  @Column({ nullable: true })
-  refresh_token: string;
-
+  
   @Column({ nullable: true })
   refresh_token_expires: string;
 

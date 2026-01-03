@@ -105,17 +105,13 @@ export class AuthService {
         expiresIn: jwtConstants.accessToken.signOptions,
       });
 
-
-      const hasedRefreshToken = await new HashUtil().hashing(refreshToken);
-
       const refreshExpires = new Date();
-      refreshExpires.setHours(refreshExpires.getHours() + 1);
+      refreshExpires.setDate(refreshExpires.getDate() + 7);
 
       const refreshExpiresFormatted = Formatdate(refreshExpires);
 
       await this.usersService.updateRefreshToken(
         user.email,
-        refreshToken,
         refreshExpiresFormatted,
       );
 
@@ -144,16 +140,9 @@ export class AuthService {
 
       const user = await this.usersService.findOneByEmail(payload.email);
 
-      if (!user || !user.refresh_token) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
+      console.log(user);
 
-      const isRefreshTokenValid = await new HashUtil().compare(
-        UpdateAuthDto.refresh_tocken,
-        user.refresh_token,
-      );
-
-      if (!isRefreshTokenValid) {
+      if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
