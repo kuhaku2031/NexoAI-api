@@ -1,5 +1,5 @@
-export function Formatdate(): string {
-  const date = new Date();
+
+export function Formatdate(date: Date = new Date()): string {
   const locale = 'en-US';
 
   const options: Intl.DateTimeFormatOptions = {

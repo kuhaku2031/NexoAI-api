@@ -3,14 +3,12 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Req,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRole } from 'src/common/enum/role.enum';
 import { Auth } from 'src/common/decorators/auth.decorator';
 
@@ -29,15 +27,10 @@ export class UsersController {
     return this.usersService.findAllByCompany(req.user.company_id);
   }
 
-  @Get()
+  @Get('all')
   @Auth(UserRole.OWNER)
   findAll() {
     return this.usersService.findAll();
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')

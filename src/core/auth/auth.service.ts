@@ -13,6 +13,7 @@ import { HashUtil } from 'src/common/utils/hash.util';
 import { JwtService } from '@nestjs/jwt';
 import { UserRole } from 'src/common/enum/role.enum';
 import { jwtConstants } from 'src/config/jwt.config';
+import { UpdateAuthDto } from './dto/update-auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -91,31 +92,31 @@ export class AuthService {
         email: user.email,
         role: user.role,
       };
-
+      
+      // Generate Refresh Token
+      const refreshToken = await this.JwtService.signAsync(payload, {
+        secret: jwtConstants.refreshToken.secret,
+        expiresIn: jwtConstants.refreshToken.signOptions,
+      });
+      
       // Generate Access Token
       const accessToken = await this.JwtService.signAsync(payload, {
         secret: jwtConstants.accessToken.secret,
         expiresIn: jwtConstants.accessToken.signOptions,
       });
 
-      // Generate Refresh Token
-      const refreshToken = await this.JwtService.signAsync(payload, {
-        secret: jwtConstants.refreshToken.secret,
-        expiresIn: jwtConstants.refreshToken.signOptions,
-      });
 
-      // Hash refresh token
       const hasedRefreshToken = await new HashUtil().hashing(refreshToken);
 
-      // Set refresh token expiration
       const refreshExpires = new Date();
-      refreshExpires.setDate(refreshExpires.getDate() + 7);
+      refreshExpires.setHours(refreshExpires.getHours() + 1);
 
-      // Update refresh token in database
+      const refreshExpiresFormatted = Formatdate(refreshExpires);
+
       await this.usersService.updateRefreshToken(
         user.email,
-        hasedRefreshToken,
-        refreshExpires,
+        refreshToken,
+        refreshExpiresFormatted,
       );
 
       return {
@@ -135,9 +136,9 @@ export class AuthService {
     }
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(UpdateAuthDto: UpdateAuthDto) {
     try {
-      const payload = await this.JwtService.verifyAsync(refreshToken, {
+      const payload = await this.JwtService.verifyAsync(UpdateAuthDto.refresh_tocken, {
         secret: jwtConstants.refreshToken.secret,
       });
 
@@ -148,7 +149,7 @@ export class AuthService {
       }
 
       const isRefreshTokenValid = await new HashUtil().compare(
-        refreshToken,
+        UpdateAuthDto.refresh_tocken,
         user.refresh_token,
       );
 

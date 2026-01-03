@@ -41,8 +41,8 @@ export class Users {
   @Column({ nullable: true })
   refresh_token: string;
 
-  @Column({ type: 'timestamp', nullable: true })
-  refresh_token_expires: Date;
+  @Column({ nullable: true })
+  refresh_token_expires: string;
 
   @ManyToOne(() => Company, (company) => company.users)
   company: Company;
