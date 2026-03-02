@@ -1,0 +1,704 @@
+{
+  "meta": {
+    "project": "NexoAI API",
+    "date": "2026-02-06",
+    "prepared_by": "Product Team"
+  },
+  "product_overview": "NexoAI API is an enterprise-grade RESTful backend system designed for small to medium-sized businesses to digitize operations, manage inventory and sales, and gain AI-powered insights. Built on NestJS and PostgreSQL, it supports multi-tenant environments, secure authentication, role-based access, comprehensive business operations, and future-ready scalable architecture.",
+  "core_goals": [
+    "Deliver a robust and scalable backend supporting multi-tenant business management.",
+    "Enable secure, role-based access with JWT authentication.",
+    "Provide complete POS, inventory, sales, and payment management functionalities.",
+    "Integrate AI to provide actionable business insights and conversational interfaces.",
+    "Ensure system performance, reliability, and maintainability with modern best practices.",
+    "Facilitate easy developer integration via comprehensive APIs and documentation."
+  ],
+  "key_features": [
+    "User authentication with registration, login, and JWT token refresh.",
+    "Role-based access control enforcing OWNER, MANAGER, and EMPLOYEE permissions.",
+    "Multi-tenant company management isolating all business data.",
+    "User management with creation, listing, updating, and soft deletion of users.",
+    "Product and inventory management including CRUD, search, filtering, and category management.",
+    "Sales management for creating, viewing, listing, and managing transactions with payment integration.",
+    "Payment processing supporting multiple payment methods linked to sales.",
+    "POS location and employee work session management.",
+    "AI features including chat interface and business insights (in progress).",
+    "Analytics and reporting dashboards for sales and inventory overview (in progress).",
+    "Future planned features like workflow automation, notifications, and low stock alerts."
+  ],
+  "user_flow_summary": [
+    "User registers with company data, becoming company OWNER, receiving JWT tokens.",
+    "User logs in using email and password, obtains access and refresh tokens.",
+    "Authenticated users perform role-permitted actions such as managing users, products, and sales.",
+    "Owners and managers administer company users, assign roles, and manage POS locations.",
+    "Employees use the POS module to process sales, work sessions tracker their shifts.",
+    "Sales creation includes validating stock, recording customer and payment data atomically.",
+    "Users access sales and inventory reports for insight, with AI features providing additional analysis (planned)."
+  ],
+  "validation_criteria": [
+    "System enforces role-based access for all endpoints without data leakage between companies.",
+    "All product, user, and sale operations validate required data and business rules (e.g., stock availability, payment amounts).",
+    "JWT tokens expire and refresh flows work securely as per defined timeouts.",
+    "Password hashing and user authentication meet security standards (bcrypt, JWT).",
+    "Multi-tenant data isolation verified in database queries and API responses.",
+    "Sales transactions occur atomically with rollback on failure.",
+    "API responses conform to consistent JSON structure with appropriate status codes.",
+    "System performance meets response time and concurrency targets during load testing.",
+    "Automated tests cover main modules with minimum 70% coverage and code quality standards are met."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "Node.js",
+      "NestJS",
+      "PostgreSQL",
+      "TypeORM",
+      "JWT Authentication",
+      "bcrypt"
+    ],
+    "features": [
+      {
+        "name": "Authentication",
+        "description": "User authentication system with login, register and token refresh functionality",
+        "files": [
+          "src/core/auth/auth.controller.ts",
+          "src/core/auth/auth.service.ts",
+          "src/core/auth/auth.module.ts",
+          "src/core/auth/dto/create-auth.dto.ts",
+          "src/core/auth/dto/login-auth.dto.ts",
+          "src/core/auth/dto/update-auth.dto.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/auth/login": {
+              "post": {
+                "summary": "User login",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/LoginAuthDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Login successful"
+                  }
+                }
+              }
+            },
+            "/api/v1/auth/register": {
+              "post": {
+                "summary": "User registration",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateAuthDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "User registered successfully"
+                  }
+                }
+              }
+            },
+            "/api/v1/auth/refresh": {
+              "post": {
+                "summary": "Refresh authentication token",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/UpdateAuthDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Token refreshed successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "User Management",
+        "description": "CRUD operations for user management with role-based access control",
+        "files": [
+          "src/core/users/users.controller.ts",
+          "src/core/users/users.service.ts",
+          "src/core/users/users.module.ts",
+          "src/core/users/dto/create-user.dto.ts",
+          "src/core/users/entities/user.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/users": {
+              "post": {
+                "summary": "Create a new user",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateUserDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "User created successfully"
+                  }
+                }
+              },
+              "get": {
+                "summary": "Get all users by company",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of users"
+                  }
+                }
+              }
+            },
+            "/api/v1/users/all": {
+              "get": {
+                "summary": "Get all users (OWNER only)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of all users"
+                  }
+                }
+              }
+            },
+            "/api/v1/users/{id}": {
+              "delete": {
+                "summary": "Delete a user",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "User deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Product Management",
+        "description": "Complete product inventory management with CRUD, search and filtering capabilities",
+        "files": [
+          "src/business/inventory/products/products.controller.ts",
+          "src/business/inventory/products/products.service.ts",
+          "src/business/inventory/products/products.module.ts",
+          "src/business/inventory/products/dto/create-product.dto.ts",
+          "src/business/inventory/products/dto/search-product.dto.ts",
+          "src/business/inventory/products/dto/filter-product.dto.ts",
+          "src/business/inventory/products/entities/product.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/products": {
+              "post": {
+                "summary": "Create a new product",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateProductDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Product created successfully"
+                  }
+                }
+              },
+              "get": {
+                "summary": "Get all products with pagination and filters",
+                "parameters": [
+                  {
+                    "name": "page",
+                    "in": "query",
+                    "schema": {
+                      "type": "integer"
+                    }
+                  },
+                  {
+                    "name": "limit",
+                    "in": "query",
+                    "schema": {
+                      "type": "integer"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Paginated list of products"
+                  }
+                }
+              }
+            },
+            "/api/v1/products/search": {
+              "post": {
+                "summary": "Search products",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/SearchProductDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Search results"
+                  }
+                }
+              }
+            },
+            "/api/v1/products/{id}": {
+              "get": {
+                "summary": "Get a product by ID",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Product details"
+                  }
+                }
+              },
+              "delete": {
+                "summary": "Delete a product",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Product deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Category Management",
+        "description": "Product category management with full CRUD operations",
+        "files": [
+          "src/business/inventory/categories/categories.controller.ts",
+          "src/business/inventory/categories/categories.service.ts",
+          "src/business/inventory/categories/categories.module.ts",
+          "src/business/inventory/categories/dto/create-category.dto.ts",
+          "src/business/inventory/categories/dto/update-category.dto.ts",
+          "src/business/inventory/categories/entities/category.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/categories": {
+              "get": {
+                "summary": "Get all categories",
+                "responses": {
+                  "200": {
+                    "description": "List of categories"
+                  }
+                }
+              },
+              "post": {
+                "summary": "Create a new category",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateCategoryDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Category created successfully"
+                  }
+                }
+              }
+            },
+            "/api/v1/categories/{category_name}": {
+              "get": {
+                "summary": "Get a category by name",
+                "parameters": [
+                  {
+                    "name": "category_name",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Category details"
+                  }
+                }
+              },
+              "patch": {
+                "summary": "Update a category",
+                "parameters": [
+                  {
+                    "name": "category_name",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/UpdateCategoryDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "200": {
+                    "description": "Category updated successfully"
+                  }
+                }
+              },
+              "delete": {
+                "summary": "Delete a category",
+                "parameters": [
+                  {
+                    "name": "category_name",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Category deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Sales Management",
+        "description": "Sales transaction management with payment integration and role-based access",
+        "files": [
+          "src/business/sale/sales/sales.controller.ts",
+          "src/business/sale/sales/sales.service.ts",
+          "src/business/sale/sales/sales.module.ts",
+          "src/business/sale/sales/dto/create-sale-with-payment.dto.ts",
+          "src/business/sale/sales/entities/sale.entity.ts",
+          "src/business/sale/sales-details/entities/sales-detail.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/sales": {
+              "get": {
+                "summary": "Get all sales (EMPLOYEE role required)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "List of sales"
+                  }
+                }
+              },
+              "post": {
+                "summary": "Create a new sale with payment (EMPLOYEE role required)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "$ref": "#/components/schemas/CreateSaleWithPaymentDto"
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Sale created successfully"
+                  }
+                }
+              }
+            },
+            "/api/v1/sales/{id}": {
+              "get": {
+                "summary": "Get a sale by ID (MANAGER role required)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Sale details"
+                  }
+                }
+              },
+              "patch": {
+                "summary": "Update a sale (MANAGER role required)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Sale updated successfully"
+                  }
+                }
+              },
+              "delete": {
+                "summary": "Delete a sale (MANAGER role required)",
+                "security": [
+                  {
+                    "bearerAuth": []
+                  }
+                ],
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Sale deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Payment Processing",
+        "description": "Payment transaction processing for sales",
+        "files": [
+          "src/business/payment/payments/payments.controller.ts",
+          "src/business/payment/payments/payments.service.ts",
+          "src/business/payment/payments/payments.module.ts",
+          "src/business/payment/payments/dto/create-payment.dto.ts",
+          "src/business/payment/payments/entities/payment.entity.ts",
+          "src/business/payment/payments-details/entities/payments-detail.entity.ts",
+          "src/business/payment/payments-methods/entities/payments-method.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/payments": {
+              "post": {
+                "summary": "Create payment(s)",
+                "requestBody": {
+                  "required": true,
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/CreatePaymentDto"
+                        }
+                      }
+                    }
+                  }
+                },
+                "responses": {
+                  "201": {
+                    "description": "Payment(s) created successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Company Management",
+        "description": "Company information and management",
+        "files": [
+          "src/core/companies/companies.controller.ts",
+          "src/core/companies/companies.service.ts",
+          "src/core/companies/companies.module.ts",
+          "src/core/companies/entities/company.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/companies": {
+              "get": {
+                "summary": "Get all companies",
+                "responses": {
+                  "200": {
+                    "description": "List of companies"
+                  }
+                }
+              }
+            },
+            "/api/v1/companies/{id}": {
+              "get": {
+                "summary": "Get a company by ID",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Company details"
+                  }
+                }
+              },
+              "delete": {
+                "summary": "Delete a company",
+                "parameters": [
+                  {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ],
+                "responses": {
+                  "200": {
+                    "description": "Company deleted successfully"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Billing System",
+        "description": "Subscription and billing management system",
+        "files": [
+          "src/core/billing/billing.controller.ts",
+          "src/core/billing/billing.service.ts",
+          "src/core/billing/billing.module.ts",
+          "src/core/billing/suscription/entities/suscription.entity.ts",
+          "src/core/billing/suscription-plans/entities/suscription-plan.entity.ts",
+          "src/core/billing/suscription-usage/entities/suscription-usage.entity.ts"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/billing": {
+              "description": "Billing endpoints (to be implemented)"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

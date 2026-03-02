@@ -1,0 +1,20 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:3001",
+  "backendAuthType": "basic token",
+  "backendUsername": "test1@test.com",
+  "backendPassword": "1234",
+  "executionArgs": {
+    "projectName": "NexoAI-api",
+    "projectPath": "/home/zac/Github/Kuhaku/Projects/NexoAI/NexoAI-api",
+    "testIds": [],
+    "additionalInstruction": "",
+    "envs": {
+      "API_KEY": "sk-user-C9Sz3OuuudLGFH0Hs7jWmy38n9INntK3qIppn2lG3XY6fL68YEaewk3eSqVVw9ejYw94W8aU5hfC4gzSQ3-FjHN7x7yQRKIKazP4TOijriI_Pzq-gxuhA7rFd8QuJ6y4gas"
+    }
+  },
+  "serverPort": 43201,
+  "proxy": "http://ca705b70-ad2d-48cb-af42-e1203c97d528:iAEQ4OgLAeoAC0jXx87MgJAuH0pFs4NU@tun.testsprite.com:8080"
+}

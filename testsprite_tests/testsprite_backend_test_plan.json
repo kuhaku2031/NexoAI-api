@@ -1,0 +1,52 @@
+[
+  {
+    "id": "TC001",
+    "title": "user_login_functionality",
+    "description": "Verify that the user can successfully log in with valid credentials and receive a valid JWT token."
+  },
+  {
+    "id": "TC002",
+    "title": "user_registration_process",
+    "description": "Test the user registration endpoint to ensure a new user can register with company data and become the company OWNER."
+  },
+  {
+    "id": "TC003",
+    "title": "jwt_token_refresh_flow",
+    "description": "Validate the token refresh endpoint to ensure that expired JWT tokens can be securely refreshed and new tokens are issued."
+  },
+  {
+    "id": "TC004",
+    "title": "create_new_user_with_role_access_control",
+    "description": "Test creating a new user with appropriate role-based access control and verify the user is added to the company."
+  },
+  {
+    "id": "TC005",
+    "title": "get_all_users_by_company",
+    "description": "Verify that the API returns a list of users belonging only to the authenticated user's company."
+  },
+  {
+    "id": "TC006",
+    "title": "delete_user_soft_deletion",
+    "description": "Test the user deletion endpoint to ensure users are soft deleted and no longer accessible but data is retained."
+  },
+  {
+    "id": "TC007",
+    "title": "create_product_inventory_management",
+    "description": "Verify that a new product can be created with valid data and is correctly stored in the inventory."
+  },
+  {
+    "id": "TC008",
+    "title": "search_products_functionality",
+    "description": "Test the product search endpoint to ensure it returns accurate results based on search criteria."
+  },
+  {
+    "id": "TC009",
+    "title": "create_sale_with_payment_integration",
+    "description": "Validate the sales creation endpoint to ensure sales transactions are created atomically with payment processing."
+  },
+  {
+    "id": "TC010",
+    "title": "create_payment_transactions",
+    "description": "Test the payment creation endpoint to verify multiple payments can be created and linked to sales correctly."
+  }
+]
