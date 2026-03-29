@@ -31,14 +31,12 @@ import { IntegrationsModule } from './integrations/integrations.module';
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot({
+      url: process.env.DB_URL,
+      ssl: true,
       type: (process.env.DB_TYPE as any) || 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
       entities: [
         // BUSSINES
         // {inventory}
