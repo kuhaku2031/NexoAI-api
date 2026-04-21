@@ -2,3 +2,8 @@ packages:
   - '.'
 ignoredBuiltDependencies:
   - bcrypt
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - '@nestjs/core'
+  - protobufjs
+  - unrs-resolver

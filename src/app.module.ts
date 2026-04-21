@@ -26,6 +26,7 @@ import { SubscriptionUsage } from './core/billing/suscription-usage/entities/sus
 import { ConfigModule } from '@nestjs/config';
 import { WorkSession } from './business/work-sessions/entities/work-session.entity';
 import { IntegrationsModule } from './integrations/integrations.module';
+import { FirestoreModule } from './ai/chat/firestore/firestore.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { IntegrationsModule } from './integrations/integrations.module';
     CoreModule,
     BillingModule,
     IntegrationsModule,
+    FirestoreModule,
   ],
   controllers: [],
   providers: [],
