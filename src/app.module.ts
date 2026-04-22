@@ -26,7 +26,7 @@ import { SubscriptionUsage } from './core/billing/suscription-usage/entities/sus
 import { ConfigModule } from '@nestjs/config';
 import { WorkSession } from './business/work-sessions/entities/work-session.entity';
 import { IntegrationsModule } from './integrations/integrations.module';
-import { FirestoreModule } from './ai/chat/firestore/firestore.module';
+import { FirestoreModule } from './ai/firestore/firestore.module';
 
 @Module({
   imports: [
@@ -36,7 +36,10 @@ import { FirestoreModule } from './ai/chat/firestore/firestore.module';
     }),
     TypeOrmModule.forRoot({
       url: process.env.DB_URL,
-      ssl: true,
+      extra: {
+        sslmode: 'require',
+        connect_timeout: 10000,
+      },
       type: (process.env.DB_TYPE as any) || 'postgres',
       entities: [
         // BUSSINES

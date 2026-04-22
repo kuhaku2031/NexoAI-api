@@ -1,26 +1,72 @@
-import { Injectable } from '@nestjs/common';
-import { CreateChatDto } from './dto/create-chat.dto';
-import { UpdateChatDto } from './dto/update-chat.dto';
+import { Injectable, Logger } from '@nestjs/common';
+import { FirestoreService } from '../firestore/firestore.service';
 
 @Injectable()
 export class ChatService {
-  create(createChatDto: CreateChatDto) {
-    return 'This action adds a new chat';
+  private readonly logger = new Logger(ChatService.name);
+
+  constructor(private readonly firestoreService: FirestoreService) {}
+
+  async createConversation(companyId: string) {
+    const conversationId = await this.firestoreService.createConversation(companyId);
+    this.logger.log(`Conversation created: ${conversationId} for company: ${companyId}`);
+    return { conversationId };
   }
 
-  findAll() {
-    return `This action returns all chat`;
+  async getConversations(companyId: string) {
+    return this.firestoreService.getConversations(companyId);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} chat`;
+  async sendMessage(
+    companyId: string,
+    conversationId: string,
+    userMessage: string,
+  ) {
+    await this.firestoreService.saveMessage(companyId, conversationId, {
+      role: 'user',
+      content: userMessage,
+    });
+
+    return { conversationId, userMessage, saved: true };
   }
 
-  update(id: number, updateChatDto: UpdateChatDto) {
-    return `This action updates a #${id} chat`;
+  async getMessages(companyId: string, conversationId: string) {
+    return this.firestoreService.getMessages(companyId, conversationId);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} chat`;
+  async startChat(companyId: string, content: string) {
+    const conversationId = await this.firestoreService.createConversation(
+      companyId,
+    );
+
+    await this.firestoreService.saveMessage(companyId, conversationId, {
+      role: 'user',
+      content,
+    });
+
+    return { conversationId };
+  }
+
+  async continueChat(
+    companyId: string,
+    conversationId: string,
+    content: string,
+  ) {
+    await this.firestoreService.saveMessage(companyId, conversationId, {
+      role: 'user',
+      content,
+    });
+
+    const messages = await this.firestoreService.getMessages(
+      companyId,
+      conversationId,
+    );
+
+    return { conversationId, messages };
+  }
+
+  async closeConversation(companyId: string, conversationId: string) {
+    this.logger.log(`Closing conversation: ${conversationId}`);
+    return { conversationId, status: 'closed' };
   }
 }
