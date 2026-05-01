@@ -8,6 +8,9 @@ import { AiModule } from './ai/ai.module';
 import { BillingModule } from './core/billing/billing.module';
 import { CommonModule } from './common/common.module';
 import { CoreModule } from './core/core.module';
+import { IntegrationsModule } from './integrations/integrations.module';
+import { FirestoreModule } from './ai/firestore/firestore.module';
+import { ConfigModule } from '@nestjs/config';
 
 //  Import all entities here
 import { Category } from './business/inventory/categories/entities/category.entity';
@@ -23,10 +26,7 @@ import { Users } from './core/users/entities/user.entity';
 import { Subscription } from './core/billing/suscription/entities/suscription.entity';
 import { SubscriptionPlan } from './core/billing/suscription-plans/entities/suscription-plan.entity';
 import { SubscriptionUsage } from './core/billing/suscription-usage/entities/suscription-usage.entity';
-import { ConfigModule } from '@nestjs/config';
 import { WorkSession } from './business/work-sessions/entities/work-session.entity';
-import { IntegrationsModule } from './integrations/integrations.module';
-import { FirestoreModule } from './ai/firestore/firestore.module';
 
 @Module({
   imports: [

@@ -8,31 +8,46 @@ export class FirestoreService implements OnModuleInit {
 
   onModuleInit() {
     if (!admin.apps.length) {
-      admin.initializeApp({
+      const projectId = process.env.FIREBASE_PROJECT_ID;
+      const dbName = process.env.FIRESTORE_DB_NAME;
+
+      const config: Record<string, unknown> = {
         credential: admin.credential.cert({
-          projectId: process.env.FIREBASE_PROJECT_ID,
+          projectId,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
           privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
         }),
-      });
+      };
+
+      if (dbName && dbName !== '(default)') {
+        config.databaseURL = `https://${projectId}-${dbName}.firebasedatabase.app`;
+      }
+
+      admin.initializeApp(config as admin.AppOptions);
+      this.logger.log(`Firebase Admin inicializado con projectId: ${projectId}, db: ${dbName || '(default)'}`);
     }
 
     this.db = admin.firestore();
-    this.logger.log('Firestore conectado');
+    this.logger.log('Firestore instance creada');
   }
 
   // ── Conversaciones ──────────────────────────────────────────
 
   async createConversation(companyId: string): Promise<string> {
-    const ref = await this.db
-      .collection('companies')
-      .doc(companyId)
-      .collection('conversations')
-      .add({
-        created_at: admin.firestore.FieldValue.serverTimestamp(),
-        status: 'active',
-      });
-    return ref.id;
+    try {
+      const ref = await this.db
+        .collection('companies')
+        .doc(companyId)
+        .collection('conversations')
+        .add({
+          created_at: admin.firestore.FieldValue.serverTimestamp(),
+          status: 'active',
+        });
+      return ref.id;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 
   async getConversations(companyId: string) {

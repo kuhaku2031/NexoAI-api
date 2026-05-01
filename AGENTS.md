@@ -124,13 +124,17 @@ feature-name/
 - Use `@nestjs/testing` Test.createTestingModule()
 - Test utilities: supertest for HTTP assertions
 
+## Command Order
+
+Run in order: `lint` -> `format` -> `test`
+
 ## Key Conventions
 
 1. **API Prefix**: All routes prefixed with `api/v1` (set in main.ts)
 2. **Environment**: Use `.env` file with `dotenv`
 3. **Database**: TypeORM with PostgreSQL (can also use MSSQL)
 4. **CUID2**: Use `@paralleldrive/cuid2` for generating IDs
-5. **Password hashing**: Use `bcryptjs`
+5. **Password hashing**: Use `bcryptjs` (not bcrypt)
 6. **Validation**: Always validate DTOs at controller level
 
 ## Running a Single Test
