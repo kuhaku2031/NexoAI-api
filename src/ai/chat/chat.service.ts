@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FirestoreService } from '../firestore/firestore.service';
+import { ConversationRole } from 'src/common/enum/conversation';
 
 @Injectable()
 export class ChatService {
@@ -8,8 +9,11 @@ export class ChatService {
   constructor(private readonly firestoreService: FirestoreService) {}
 
   async createConversation(companyId: string) {
-    const conversationId = await this.firestoreService.createConversation(companyId);
-    this.logger.log(`Conversation created: ${conversationId} for company: ${companyId}`);
+    const conversationId =
+      await this.firestoreService.createConversation(companyId);
+    this.logger.log(
+      `Conversation created: ${conversationId} for company: ${companyId}`,
+    );
     return { conversationId };
   }
 
@@ -22,8 +26,10 @@ export class ChatService {
     conversationId: string,
     userMessage: string,
   ) {
-    await this.firestoreService.saveMessage(companyId, conversationId, {
-      role: 'user',
+    await this.firestoreService.saveMessage({
+      companyId,
+      conversationId,
+      role: ConversationRole.USER,
       content: userMessage,
     });
 
@@ -34,27 +40,30 @@ export class ChatService {
     return this.firestoreService.getMessages(companyId, conversationId);
   }
 
-  async startChat(companyId: string, content: string) {
-    const conversationId = await this.firestoreService.createConversation(
-      companyId,
-    );
+  // async startChat(companyId: string, content: string) {
+  //   const conversationId =
+  //     await this.firestoreService.createConversation(companyId);
 
-    await this.firestoreService.saveMessage(companyId, conversationId, {
-      role: 'user',
-      content,
-    });
+  //   await this.firestoreService.saveMessage({
+  //     companyId,
+  //     conversationId,
+  //     role: ConversationRole.USER,
+  //     content,
+  //   });
 
-    return { conversationId };
-  }
+  //   return { conversationId };
+  // }
 
   async continueChat(
     companyId: string,
     conversationId: string,
     content: string,
   ) {
-    await this.firestoreService.saveMessage(companyId, conversationId, {
-      role: 'user',
-      content,
+    await this.firestoreService.saveMessage({
+      companyId,
+      conversationId,
+      role: ConversationRole.USER,
+      content: content,
     });
 
     const messages = await this.firestoreService.getMessages(

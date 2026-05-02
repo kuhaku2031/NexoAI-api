@@ -15,7 +15,11 @@ import { Response } from 'express';
 import { ChatService } from './chat.service';
 import { AiService } from './ai.service';
 import { FirestoreService } from '../firestore/firestore.service';
-import { CreateChatDto, SendMessageDto, AiStreamDto } from './dto/create-chat.dto';
+import {
+  CreateChatDto,
+  SendMessageDto,
+  AiStreamDto,
+} from './dto/create-chat.dto';
 import { AuthGuard } from 'src/common/guard/auth.guard';
 import { RolesGuard } from 'src/common/guard/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
@@ -73,11 +77,14 @@ export class ChatController {
     return this.chatService.getMessages(company_id, conversationId);
   }
 
-  @Post('start')
-  async startChat(@Body() createChatDto: CreateChatDto, @Req() req: AuthenticatedRequest) {
-    const { company_id } = req.user;
-    return this.chatService.startChat(company_id, createChatDto.content);
-  }
+  // @Post('start')
+  // async startChat(
+  //   @Body() createChatDto: CreateChatDto,
+  //   @Req() req: AuthenticatedRequest,
+  // ) {
+  //   const { company_id } = req.user;
+  //   return this.chatService.startChat(company_id, createChatDto.content);
+  // }
 
   @Post('continue/:conversationId')
   async continueChat(
