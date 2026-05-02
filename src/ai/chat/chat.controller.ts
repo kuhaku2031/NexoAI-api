@@ -7,9 +7,9 @@ import {
   Req,
   Res,
   UseGuards,
-  Headers,
   HttpCode,
   HttpStatus,
+  Logger, // ← agregar este import
 } from '@nestjs/common';
 import { Response } from 'express';
 import { ChatService } from './chat.service';
@@ -24,6 +24,7 @@ import { AuthGuard } from 'src/common/guard/auth.guard';
 import { RolesGuard } from 'src/common/guard/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRole } from 'src/common/enum/role.enum';
+import { ConversationRole } from 'src/common/enum/conversation';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -36,6 +37,8 @@ interface AuthenticatedRequest extends Request {
 @Controller('chat')
 @UseGuards(AuthGuard, RolesGuard)
 export class ChatController {
+  private readonly logger = new Logger(ChatController.name);
+
   constructor(
     private readonly chatService: ChatService,
     private readonly aiService: AiService,
@@ -110,16 +113,6 @@ export class ChatController {
     return this.chatService.closeConversation(company_id, conversationId);
   }
 
-  // ── AI Endpoints ──────────────────────────────────────────────
-
-  @Post('service-account')
-  @Roles(UserRole.OWNER, UserRole.MANAGER)
-  async generateServiceAccount(@Req() req: AuthenticatedRequest) {
-    const { company_id } = req.user;
-    const token = await this.aiService.generateServiceAccountToken(company_id);
-    return { service_account_token: token, type: 'ai_assistant' };
-  }
-
   @Post('stream/:conversationId')
   @HttpCode(HttpStatus.OK)
   async streamChat(
@@ -133,21 +126,48 @@ export class ChatController {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Acces--Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
-    const messages = await this.firestoreService.getMessages(
-      company_id,
-      conversationId,
-    );
+    try {
+      // 1. Guardar mensaje del usuario en Firestore
+      await this.firestoreService.saveMessage({
+        companyId: company_id,
+        conversationId: conversationId,
+        role: ConversationRole.USER,
+        content: streamDto.message,
+        content_rep: '',
+      });
+      // 2. Cargar historial completo para contexto
+      const messages = await this.firestoreService.getMessages(
+        company_id,
+        conversationId,
+      );
 
-    const fullResponse = await this.aiService.generateStreamingResponse(
-      messages as { role: string; content: string }[],
-      (chunk: string) => {
-        res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
-      },
-    );
+      // 3. Llamar a la IA y enviar chunks al cliente
+      const fullResponse = await this.aiService.generateStreamingResponse(
+        messages as { role: string; content: string }[],
+        (chunk: string) => {
+          res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+        },
+      );
 
-    res.write(`data: ${JSON.stringify({ done: true, fullResponse })}\n\n`);
-    res.end();
+      // 4. Guardar respuesta del asistente en Firestore
+      await this.firestoreService.saveMessage({
+        companyId: company_id,
+        conversationId: conversationId,
+        role: ConversationRole.USER,
+        content: streamDto.message,
+        content_rep: fullResponse,
+      });
+
+      res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+      res.end();
+    } catch (error) {
+      this.logger.error('Error en stream:', error);
+      res.write(
+        `data: ${JSON.stringify({ error: 'Error al procesar el mensaje' })}\n\n`,
+      );
+      res.end();
+    }
   }
 }

@@ -31,6 +31,7 @@ export class ChatService {
       conversationId,
       role: ConversationRole.USER,
       content: userMessage,
+      content_rep: '',
     });
 
     return { conversationId, userMessage, saved: true };
@@ -64,6 +65,7 @@ export class ChatService {
       conversationId,
       role: ConversationRole.USER,
       content: content,
+      content_rep: '',
     });
 
     const messages = await this.firestoreService.getMessages(
