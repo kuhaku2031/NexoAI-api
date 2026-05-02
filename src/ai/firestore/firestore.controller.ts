@@ -1,42 +1,19 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { FirestoreService } from './firestore.service';
+import { SaveMessageFirestoreDto } from './dto/save-message-firestore.dto';
 
 @Controller('firestore-test')
 export class FirestoreController {
   constructor(private readonly firestoreService: FirestoreService) {}
 
   @Post('conversation')
-  async createConversation(@Body() body: { companyId: string }) {
-    const conversationId = await this.firestoreService.createConversation(
-      body.companyId,
-    );
-    return {
-      ok: true,
-      conversationId,
-      message: `Conversación creada en companies/${body.companyId}/conversations/${conversationId}`,
-    };
+  createConversation(@Body() body: { companyId: string }) {
+    return this.firestoreService.createConversation(body.companyId);
   }
 
   @Post('message')
-  async saveMessage(
-    @Body()
-    body: {
-      companyId: string;
-      conversationId: string;
-      role: 'user' | 'assistant';
-      content: string;
-    },
-  ) {
-    await this.firestoreService.saveMessage(
-      body.companyId,
-      body.conversationId,
-      { role: body.role, content: body.content },
-    );
-    return {
-      ok: true,
-      message: `Mensaje [${body.role}] guardado en conversación ${body.conversationId}`,
-      data: { role: body.role, content: body.content },
-    };
+  saveMessage(@Body() saveMessageFirestoreDto: SaveMessageFirestoreDto) {
+    return this.firestoreService.saveMessage(saveMessageFirestoreDto);
   }
 
   @Get(':companyId/:conversationId/messages')

@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import { SaveMessageFirestoreDto } from './dto/save-message-firestore.dto';
 
 @Injectable()
 export class FirestoreService implements OnModuleInit {
@@ -24,7 +25,9 @@ export class FirestoreService implements OnModuleInit {
       }
 
       admin.initializeApp(config as admin.AppOptions);
-      this.logger.log(`Firebase Admin inicializado con projectId: ${projectId}, db: ${dbName || '(default)'}`);
+      this.logger.log(
+        `Firebase Admin inicializado con projectId: ${projectId}, db: ${dbName || '(default)'}`,
+      );
     }
 
     this.db = admin.firestore();
@@ -33,7 +36,7 @@ export class FirestoreService implements OnModuleInit {
 
   // ── Conversaciones ──────────────────────────────────────────
 
-  async createConversation(companyId: string): Promise<string> {
+  async createConversation(companyId: string) {
     try {
       const ref = await this.db
         .collection('companies')
@@ -43,7 +46,13 @@ export class FirestoreService implements OnModuleInit {
           created_at: admin.firestore.FieldValue.serverTimestamp(),
           status: 'active',
         });
-      return ref.id;
+
+      const message = {
+        ok: true,
+        conversationId: ref.id,
+        message: `Conversación creada en companies/${companyId}/conversations/${ref.id}`,
+      };
+      return message;
     } catch (error) {
       this.logger.error(error);
       throw error;
@@ -67,21 +76,33 @@ export class FirestoreService implements OnModuleInit {
 
   // ── Mensajes ────────────────────────────────────────────────
 
-  async saveMessage(
-    companyId: string,
-    conversationId: string,
-    message: { role: 'user' | 'assistant'; content: string },
-  ): Promise<void> {
-    await this.db
-      .collection('companies')
-      .doc(companyId)
-      .collection('conversations')
-      .doc(conversationId)
-      .collection('messages')
-      .add({
-        ...message,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      });
+  async saveMessage(saveMessageFirestoreDto: SaveMessageFirestoreDto) {
+    try {
+      await this.db
+        .collection('companies')
+        .doc(saveMessageFirestoreDto.companyId)
+        .collection('conversations')
+        .doc(saveMessageFirestoreDto.conversationId)
+        .collection('messages')
+        .add({
+          ...saveMessageFirestoreDto,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+      const message = {
+        ok: true,
+        message: `Mensaje [${saveMessageFirestoreDto.role}] guardado en conversación ${saveMessageFirestoreDto.conversationId}`,
+        data: {
+          role: saveMessageFirestoreDto.role,
+          content: saveMessageFirestoreDto.content,
+        },
+      };
+
+      return message;
+    } catch (error) {
+      this.logger.error(error);
+      throw error;
+    }
   }
 
   async getMessages(
