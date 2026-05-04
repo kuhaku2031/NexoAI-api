@@ -64,11 +64,12 @@ export class ChatController {
     @Req() req: AuthenticatedRequest,
   ) {
     const { company_id } = req.user;
-    return this.chatService.sendMessage(
-      company_id,
+    return this.firestoreService.saveMessageWithValidation({
+      companyId: company_id,
       conversationId,
-      sendMessageDto.content,
-    );
+      role: ConversationRole.USER,
+      content: sendMessageDto.content,
+    });
   }
 
   @Get('conversations/:conversationId/messages')
@@ -77,7 +78,7 @@ export class ChatController {
     @Req() req: AuthenticatedRequest,
   ) {
     const { company_id } = req.user;
-    return this.chatService.getMessages(company_id, conversationId);
+    return this.firestoreService.getMessagesWithValidation(company_id, conversationId);
   }
 
   // @Post('start')
@@ -110,7 +111,7 @@ export class ChatController {
     @Req() req: AuthenticatedRequest,
   ) {
     const { company_id } = req.user;
-    return this.chatService.closeConversation(company_id, conversationId);
+    return this.firestoreService.closeConversation(company_id, conversationId);
   }
 
   @Post('stream/:conversationId')
@@ -129,35 +130,35 @@ export class ChatController {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     try {
-      // 1. Guardar mensaje del usuario en Firestore
-      await this.firestoreService.saveMessage({
+      // 1. Guardar mensaje del USUARIO (con validación de seguridad)
+      await this.firestoreService.saveMessageWithValidation({
         companyId: company_id,
-        conversationId: conversationId,
+        conversationId,
         role: ConversationRole.USER,
         content: streamDto.message,
-        content_rep: '',
       });
-      // 2. Cargar historial completo para contexto
-      const messages = await this.firestoreService.getMessages(
+
+      // 2. Cargar historial para contexto (con límite de 10 mensajes)
+      const history = await this.firestoreService.getMessagesWithLimit(
         company_id,
         conversationId,
+        10,
       );
 
       // 3. Llamar a la IA y enviar chunks al cliente
       const fullResponse = await this.aiService.generateStreamingResponse(
-        messages as { role: string; content: string }[],
+        history,
         (chunk: string) => {
           res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
         },
       );
 
-      // 4. Guardar respuesta del asistente en Firestore
-      await this.firestoreService.saveMessage({
+      // 4. Guardar respuesta del ASISTENTE (con validación de seguridad)
+      await this.firestoreService.saveMessageWithValidation({
         companyId: company_id,
-        conversationId: conversationId,
-        role: ConversationRole.USER,
-        content: streamDto.message,
-        content_rep: fullResponse,
+        conversationId,
+        role: ConversationRole.ASSISTANT,
+        content: fullResponse,
       });
 
       res.write(`data: ${JSON.stringify({ done: true })}\n\n`);

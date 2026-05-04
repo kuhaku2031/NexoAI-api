@@ -16,7 +16,4 @@ export class SaveMessageFirestoreDto {
 
   @IsNotEmpty()
   content: string;
-
-  @IsString()
-  content_rep: string;
 }

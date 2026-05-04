@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 // Import all modules here
 import { BussinesModule } from './business/bussines.module';
@@ -10,6 +11,7 @@ import { CommonModule } from './common/common.module';
 import { CoreModule } from './core/core.module';
 import { IntegrationsModule } from './integrations/integrations.module';
 import { FirestoreModule } from './ai/firestore/firestore.module';
+import { EmbeddingsModule } from './ai/embeddings/embeddings.module';
 import { ConfigModule } from '@nestjs/config';
 
 //  Import all entities here
@@ -23,10 +25,8 @@ import { Sale } from './business/sale/sales/entities/sale.entity';
 import { SalesDetail } from './business/sale/sales-details/entities/sales-detail.entity';
 import { Company } from './core/companies/entities/company.entity';
 import { Users } from './core/users/entities/user.entity';
-import { Subscription } from './core/billing/suscription/entities/suscription.entity';
-import { SubscriptionPlan } from './core/billing/suscription-plans/entities/suscription-plan.entity';
-import { SubscriptionUsage } from './core/billing/suscription-usage/entities/suscription-usage.entity';
 import { WorkSession } from './business/work-sessions/entities/work-session.entity';
+import { ConversationEmbedding } from './ai/embeddings/entities/conversation-embedding.entity';
 
 @Module({
   imports: [
@@ -34,6 +34,7 @@ import { WorkSession } from './business/work-sessions/entities/work-session.enti
       envFilePath: '.env',
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       url: process.env.DB_URL,
       extra: {
@@ -64,15 +65,16 @@ import { WorkSession } from './business/work-sessions/entities/work-session.enti
 
         // CORE
         // {billing}
-        Subscription,
-        SubscriptionPlan,
-        SubscriptionUsage,
 
         // {companies}
         Company,
 
         // {users}
         Users,
+
+        // AI
+        // {embeddings}
+        ConversationEmbedding,
       ],
       autoLoadEntities: true,
       synchronize: true,
@@ -88,6 +90,7 @@ import { WorkSession } from './business/work-sessions/entities/work-session.enti
     BillingModule,
     IntegrationsModule,
     FirestoreModule,
+    EmbeddingsModule,
   ],
   controllers: [],
   providers: [],
