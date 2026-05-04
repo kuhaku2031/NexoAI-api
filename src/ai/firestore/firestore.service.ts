@@ -171,7 +171,7 @@ export class FirestoreService implements OnModuleInit {
     companyId: string,
     conversationId: string,
     limit: number = 10,
-  ): Promise<FirestoreMessage[]> {
+  ): Promise<{ role: string; content: string }[]> {
     await this.validateConversationOwner(companyId, conversationId);
 
     const snapshot = await this.db
@@ -187,7 +187,6 @@ export class FirestoreService implements OnModuleInit {
     const messages = snapshot.docs.map((doc) => ({
       role: doc.data().role,
       content: doc.data().content,
-      timestamp: doc.data().timestamp,
     }));
 
     return messages.reverse();
