@@ -229,7 +229,7 @@ src/
 ```bash
 git clone https://github.com/kuhaku2031/NexoAI-api.git
 cd NexoAI-api
-npm install
+pnpm install
 ```
 
 ### Environment Variables
@@ -275,10 +275,10 @@ PORT=3001
 
 ```bash
 # Development
-npm run start:dev
+pnpm run start:dev
 
 # Production
-npm run build && npm run start:prod
+pnpm run build && npm run start:prod
 ```
 
 ---
